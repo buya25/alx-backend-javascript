@@ -1,35 +1,41 @@
 const express = require('express');
-const bdparser = require('body-parser')
+
 const app = express();
-app.use(bdparser.urlencoded({ extended: true }));
-app.use(bdparser.json());
-app.use(bdparser.raw());
 const port = 7865;
 
-app.get('/', (rq, rs) => {
-  rs.send('Welcome to the payment system');
+app.use(express.json());
+
+app.get('/', (request, response) => {
+  response.send('Welcome to the payment system');
 });
 
-app.get('/cart/:id([0-9]+)', (rq, rs) => {
-  rs.send(`Payment methods for cart ${rq.params.id}`);
+app.get('/cart/:id([0-9]+)', (request, response) => {
+    response.send(`Payment methods for cart ${request.params.id}`);
 });
 
-app.get('/available_payments', (rq, rs) => {
-  const ob = {
-    payment_methods: {
-      credit_cards: true,
-      paypal: false
+app.get('/available_payments', (request, response) => {
+    response.set("Content-Type", "application/json");
+    const payMethods = {
+	payment_methods: {
+          credit_cards: true,
+          paypal: false
+	}
     }
-  }
-  rs.json(ob);
+    response.send(payMethods);
 });
 
-app.post('/login', (rq, rs) => {
-  rs.end(`Welcome ${rq.body.userName}`);
+app.post('/login', (request, response) => {
+    const userName = request.body.userName;
+    if (userName) {
+	response.send(`Welcome ${userName}`);
+    } else {
+	response.status(404).send();
+    }
 });
 
 app.listen(port, () => {
-  console.log(`API available on localhost port ${port}`);
+    console.log(`API available on localhost port ${port}`);
 });
 
 module.exports = app;
+
